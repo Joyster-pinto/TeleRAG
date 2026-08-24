@@ -1,0 +1,44 @@
+[
+  {
+    "timestamp": "2026-08-24T14:22:10Z",
+    "cell_id": "gNB_102_Sec3",
+    "severity": "CRITICAL",
+    "alarm_type": "HANDOVER_EXECUTION_FAILURE_T304_EXPIRY",
+    "probable_cause": "Target cell gNB_105 RACH failure or severe pilot pollution at cell boundary",
+    "kpi_snapshot": {
+      "RSRP_dBm": -82.4,
+      "RSRQ_dB": -14.1,
+      "SINR_dB": -2.8,
+      "HO_Success_Rate_pct": 54.2,
+      "T304_Expiry_Count": 42
+    },
+    "raw_log": "Aug 24 14:22:10 gNB-102 RRC_MRO: [ALARM-4102] T304 timer expired for UE-ID=88412 during HO towards target gNB-105. RRC connection re-establishment initiated."
+  },
+  {
+    "timestamp": "2026-08-24T14:25:30Z",
+    "cell_id": "gNB_204_Sec1",
+    "severity": "MAJOR",
+    "alarm_type": "HIGH_PUSCH_UPLINK_INTERFERENCE",
+    "probable_cause": "Uncoordinated adjacent cell PRB allocation or external industrial RF jammer",
+    "kpi_snapshot": {
+      "RSRP_dBm": -74.1,
+      "PUSCH_RSSI_dBm": -86.3,
+      "Uplink_BLER_pct": 28.6,
+      "Uplink_Throughput_Mbps": 3.4
+    },
+    "raw_log": "Aug 24 14:25:30 gNB-204 PHY_MON: [ALARM-2091] Uplink interference threshold exceeded on PRBs 12-48. Average PUSCH RSSI=-86.3dBm, SINR=-4.1dB."
+  },
+  {
+    "timestamp": "2026-08-24T14:30:15Z",
+    "cell_id": "NearRT_RIC_Instance_01",
+    "severity": "CRITICAL",
+    "alarm_type": "E2_NODE_SETUP_FAILURE",
+    "probable_cause": "AbstractSyntaxError_Reject in E2SM-KPM schema negotiation with O-DU-301",
+    "kpi_snapshot": {
+      "Active_E2_Nodes": 14,
+      "Disconnected_Nodes": 1,
+      "xApp_Traffic_Steering_Status": 0.0
+    },
+    "raw_log": "Aug 24 14:30:15 RIC-E2TERM: [ALARM-7014] E2 Setup Request rejected from node O-DU-301. Cause=AbstractSyntaxError_Reject. TimeToWait=5s."
+  }
+]

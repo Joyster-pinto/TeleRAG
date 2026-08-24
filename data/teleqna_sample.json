@@ -1,0 +1,42 @@
+{
+  "Q_38331_001": {
+    "question": "In 3GPP TS 38.331 (NR RRC), which timer is started by the UE upon transmission of RRCReconfigurationComplete including mobilityControlInfo?",
+    "option 1": "Timer T300",
+    "option 2": "Timer T304 (Handover timer)",
+    "option 3": "Timer T310 (Radio link failure timer)",
+    "option 4": "Timer T311 (RRC re-establishment timer)",
+    "answer": "option 2",
+    "category": "3GPP TS 38.331 RRC Protocol",
+    "explanation": "According to TS 38.331 Section 5.3.5.3, timer T304 is started upon reception of RRCReconfiguration containing reconfigurationWithSync (Handover) and stopped upon successful random access to the target cell."
+  },
+  "Q_38213_002": {
+    "question": "What is the primary cause of sudden Uplink PUSCH SINR degradation when RSRP from the serving gNB remains high (-75 dBm)?",
+    "option 1": "Propagation path loss attenuation",
+    "option 2": "Co-channel uplink inter-cell interference (high neighboring PRB load) or external jammer",
+    "option 3": "Downlink SSB beam failure",
+    "option 4": "AMF signaling overload",
+    "answer": "option 2",
+    "category": "3GPP TS 38.213 PHY Layer",
+    "explanation": "High serving RSRP combined with severely degraded SINR indicates a high interference-plus-noise denominator, typically caused by uncoordinated co-channel PUSCH transmissions or pilot pollution."
+  },
+  "Q_ORAN_003": {
+    "question": "In O-RAN architecture, which interface is responsible for connecting the Near-RT RIC to the E2 Nodes (O-CU-CP, O-CU-UP, O-DU) for fine-grained control loops (10ms-1s)?",
+    "option 1": "O1 Interface",
+    "option 2": "A1 Interface",
+    "option 3": "E2 Interface",
+    "option 4": "Open Fronthaul 7.2x Interface",
+    "answer": "option 3",
+    "category": "O-RAN Alliance Architecture",
+    "explanation": "The E2 interface connects the Near-RT RIC to E2 nodes (CU/DU) allowing xApps to subscribe to metrics and execute RAN control actions."
+  },
+  "Q_38413_004": {
+    "question": "When an NG-RAN node rejects a PDU Session Resource Setup Request due to transport network congestion, which NGAP Cause group is signaled?",
+    "option 1": "CauseRadioNetwork",
+    "option 2": "CauseTransport (Transport Resource Unavailable)",
+    "option 3": "CauseNas",
+    "option 4": "CauseProtocol",
+    "answer": "option 2",
+    "category": "3GPP TS 38.413 NGAP",
+    "explanation": "TS 38.413 Clause 9.3.1.2 defines CauseTransport for signaling failures stemming from GTP-U transport and IP backbone congestion."
+  }
+}

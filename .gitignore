@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# DA1 Submission Reports and Artifacts (Local Only)
+*.pdf
+*.docx
+*.zip
+*.png
+*.jpg
+DA1_*
+TeleRAG_System_Architecture_*
+literature_survey_and_architecture_da1.md
+
+# OS
+.DS_Store
+Thumbs.db

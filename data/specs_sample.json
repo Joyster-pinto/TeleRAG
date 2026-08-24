@@ -1,0 +1,42 @@
+[
+  {
+    "doc_id": "TS_38331_SEC_5_3_5",
+    "spec_number": "TS 38.331",
+    "release": "Rel 17",
+    "section_id": "5.3.5.3",
+    "section_title": "RRC Reconfiguration with Sync (Handover Execution)",
+    "content": "Upon receiving an RRCReconfiguration message including reconfigurationWithSync, the UE shall start timer T304 for the target SpCell. The UE shall apply the target SpCell configuration, configure lower layers to perform Random Access on the target SpCell, and transmit the RRCReconfigurationComplete message. If timer T304 expires before successful completion of random access on the target SpCell, the UE shall initiate the RRC connection re-establishment procedure as specified in clause 5.3.7."
+  },
+  {
+    "doc_id": "TS_38213_SEC_7_1",
+    "spec_number": "TS 38.213",
+    "release": "Rel 16",
+    "section_id": "7.1.1",
+    "section_title": "Physical Uplink Shared Channel (PUSCH) Power Control and Interference",
+    "content": "For PUSCH transmission on serving cell c, carrier f, and active UL BWP b, the UE sets the transmit power according to the target power P0_PUSCH, alpha path loss compensation, and closed-loop TPC commands. When severe uplink interference is detected on target Physical Resource Blocks (PRBs), the network may adjust the target nominal power or invoke fractional power control. High PUSCH RSSI with low SINR signifies excessive co-channel interference or pilot contamination from adjacent unsynchronized cells."
+  },
+  {
+    "doc_id": "TS_38413_SEC_8_2",
+    "spec_number": "TS 38.413",
+    "release": "Rel 17",
+    "section_id": "8.2.1",
+    "section_title": "Initial Context Setup and NGAP Cause Codes",
+    "content": "The INITIAL CONTEXT SETUP procedure is used to establish the required UE context, including PDU session resources and security capabilities. If the NG-RAN node is unable to establish any PDU session resource, it sends an INITIAL CONTEXT SETUP FAILURE message with appropriate cause value (e.g., CauseRadioNetwork: cell-not-available, or CauseTransport: transport-resource-unavailable). Upon receiving CauseTransport, the AMF logs transport route exhaustion."
+  },
+  {
+    "doc_id": "ORAN_WG3_E2_SEC_4",
+    "spec_number": "O-RAN.WG3.E2GAP",
+    "release": "v03.00",
+    "section_id": "4.2.1",
+    "section_title": "E2 Setup and Node Configuration Update Procedures",
+    "content": "The purpose of the E2 Setup procedure is to establish the E2 interface connection between an E2 Node (O-CU/O-DU) and the Near-RT RIC. If the Near-RT RIC rejects the setup due to unsupported E2 Service Model (E2SM) or schema mismatch, it returns an E2 SETUP FAILURE message containing CauseProtocol: AbstractSyntaxError_Reject. The E2 Node shall back off according to the TimeToWait timer before attempting re-transmission."
+  },
+  {
+    "doc_id": "TS_28541_SEC_6_2",
+    "spec_number": "TS 28.541",
+    "release": "Rel 17",
+    "section_id": "6.2.3",
+    "section_title": "Self-Organizing Networks (SON): Mobility Robustness and Handover Optimization",
+    "content": "Handover parameter optimization (MRO) adjusts the Cell Individual Offset (CIO) and time-to-trigger (TTT) parameters to prevent Handover Failure: Too Early Handover, Too Late Handover, and Handover to Wrong Cell. If the failure type is Too Late Handover (RLF occurs in source cell before handover completes), the CIO towards the target cell shall be increased (e.g. +1 dB to +3 dB) to trigger earlier measurement reports (Event A3). Valid CIO range is [-24 dB, +24 dB] in steps of 0.5 dB."
+  }
+]
