@@ -50,7 +50,7 @@ A domain-specific, localized Retrieval-Augmented Generation (RAG) and Multi-Agen
 │   │       └── index.html                   # Interactive NOC Operator Web UI
 │   ├── data_loader.py                       # Unified Stage 1 data loader
 │   └── pipeline.py                          # End-to-End 5-Stage TeleRAG 2.0 Orchestrator
-├── models/                                  # Local LLM directory (Qwen 2.5 3B GGUF weights)
+├── models/                                  # Local LLM directory (place GGUF weights here)
 ├── tests/
 │   ├── test_stage1.py                       # Stage 1 unit tests
 │   └── test_full_pipeline.py                # End-to-end Stages 1-5 integration tests
@@ -73,7 +73,7 @@ cd TeleRAG
 pip install -r requirements.txt
 ```
 
-### 2. Download the Qwen 2.5 3B Model (~2.10 GB)
+### 2. Download & Place the Qwen 2.5 3B Model (~2.10 GB)
 TeleRAG uses **Qwen 2.5 3B Instruct** (quantized to 4-bit GGUF format) for offline, neural diagnostic generation on consumer GPUs or CPUs.
 
 #### Option A: Automated 1-Click Download (Recommended)
@@ -81,13 +81,21 @@ Run the bundled downloader script:
 ```bash
 python download_model.py
 ```
-This automatically downloads `qwen2.5-3b-instruct-q4_k_m.gguf` from the official Hugging Face repository directly into the `models/` directory with a live progress bar.
+This automatically downloads `qwen2.5-3b-instruct-q4_k_m.gguf` from Hugging Face and places it directly into the `models/` directory with a live progress bar.
 
-#### Option B: Manual Download
-You can download the model weights directly from Hugging Face:
-- **Direct Download Link**: [qwen2.5-3b-instruct-q4_k_m.gguf (Hugging Face)](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf)
-- Save the downloaded file inside the `models/` directory as:
-  `models/qwen2.5-3b-instruct-q4_k_m.gguf`
+#### Option B: Manual Download & Placement
+If you prefer to download it manually via browser or `wget`/`curl`:
+1. **Direct Download Link**: [qwen2.5-3b-instruct-q4_k_m.gguf (Hugging Face)](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf)
+2. **Where to Place the File**: Place the downloaded file inside the `models/` folder in your project root:
+   ```
+   TeleRAG/
+   ├── models/
+   │   └── qwen2.5-3b-instruct-q4_k_m.gguf   <-- Put the downloaded file here
+   ├── src/
+   ├── app.py
+   └── download_model.py
+   ```
+   *(The exact expected file path is: `models/qwen2.5-3b-instruct-q4_k_m.gguf`)*
 
 ---
 

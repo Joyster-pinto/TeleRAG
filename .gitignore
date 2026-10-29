@@ -27,7 +27,8 @@ literature_survey_and_architecture_da1.md
 Thumbs.db
 
 # Large Model Weights (Exceeds GitHub 100MB limit)
-models/
+models/*
+!models/.gitkeep
 *.gguf
 *.bin
 

@@ -1,0 +1,2 @@
+# Keep this empty folder tracked in Git so the models/ directory exists after git clone.
+# Place qwen2.5-3b-instruct-q4_k_m.gguf into this folder.
