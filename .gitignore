@@ -31,3 +31,15 @@ models/
 *.gguf
 *.bin
 
+
+# IEEE Paper & Template Content
+overleaf_ieee_paper/
+ieee_template_ref/
+pipeline.jpeg
+*.zip
+
+# Figure & Plot Generation Scripts
+generate_figures.m
+generate_figures.R
+generate_*.py
+
