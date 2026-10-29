@@ -46,6 +46,8 @@ A domain-specific, localized Retrieval-Augmented Generation (RAG) and Multi-Agen
 │   ├── stage3_specialists/                  # Stage 3: 5 Domain Agents & 10 TeleMCP Tools
 │   ├── stage4_verification/                 # Stage 4: SON Optimizer, 3GPP Verifier & Reflection Engine
 │   ├── stage5_interface/                    # Stage 5: Explainable NOC Dashboard & KPI Evaluator
+│   │   └── templates/
+│   │       └── index.html                   # Interactive NOC Operator Web UI
 │   ├── data_loader.py                       # Unified Stage 1 data loader
 │   └── pipeline.py                          # End-to-End 5-Stage TeleRAG 2.0 Orchestrator
 ├── models/                                  # Local LLM directory (Qwen 2.5 3B GGUF weights)
@@ -62,6 +64,8 @@ A domain-specific, localized Retrieval-Augmented Generation (RAG) and Multi-Agen
 
 ## 🚀 Quick Start & Installation
 
+> ⚠️ **Important Model Requirement**: To enable full local neural responses in the AI Chatbot (`app.py`), **Step 2 (downloading the Qwen 2.5 3B model)** must be completed before launching. If run without downloading the model, TeleRAG will automatically operate in its deterministic rule-based fallback mode.
+
 ### 1. Clone the Repository & Install Dependencies
 ```bash
 git clone https://github.com/Joyster-pinto/TeleRAG.git
@@ -77,7 +81,7 @@ Run the bundled downloader script:
 ```bash
 python download_model.py
 ```
-This automatically downloads `qwen2.5-3b-instruct-q4_k_m.gguf` from the official Hugging Face repository directly into the `models/` directory with a progress bar.
+This automatically downloads `qwen2.5-3b-instruct-q4_k_m.gguf` from the official Hugging Face repository directly into the `models/` directory with a live progress bar.
 
 #### Option B: Manual Download
 You can download the model weights directly from Hugging Face:
@@ -85,11 +89,9 @@ You can download the model weights directly from Hugging Face:
 - Save the downloaded file inside the `models/` directory as:
   `models/qwen2.5-3b-instruct-q4_k_m.gguf`
 
-> **Note**: Even without downloading the model file, TeleRAG includes a built-in deterministic fallback engine so the full 5-stage pipeline, DAG task router, and 3GPP guardrail verifier will run out-of-the-box!
-
 ---
 
-### 3. Launch the Interactive NOC Operator Dashboard
+### 3. Launch the Interactive NOC Operator Chatbot / Dashboard
 ```bash
 python app.py
 ```
