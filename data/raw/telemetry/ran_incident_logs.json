@@ -1,0 +1,81 @@
+[
+  {
+    "incident_id": "INC-2026-5G-001",
+    "timestamp": "2026-08-30T10:15:22Z",
+    "cell_id": "gNB_Cell_102_Sector1",
+    "neighbor_cell_id": "gNB_Cell_105_Sector3",
+    "severity": "CRITICAL",
+    "alarm_type": "HANDOVER_EXECUTION_FAILURE_T304",
+    "probable_cause": "Timer T304 expiry during RRC Reconfiguration handover execution",
+    "kpi_snapshot": {
+      "RSRP_serving_dBm": -108.5,
+      "RSRQ_serving_dB": -16.2,
+      "SINR_serving_dB": -2.4,
+      "RSRP_neighbor_dBm": -88.1,
+      "BLER_percent": 24.8,
+      "PRB_utilization_percent": 78.5,
+      "neighbor_PRB_utilization_percent": 91.5,
+      "current_CIO_dB": 0.0,
+      "current_Hysteresis_dB": 1.0,
+      "current_TTT_ms": 160,
+      "HO_failure_rate_percent": 42.1
+    },
+    "raw_log": "[2026-08-30 10:15:22.104] [RRC-WARN] gNB_Cell_102: Handover Execution Failure for UE_ID 0x4F1A. Target Cell: gNB_Cell_105 (PRB Load: 91.5%). Reason: T304_EXPIRY. Initiating RRC Connection Re-establishment per TS 38.331 \u00a75.3.5.3."
+  },
+  {
+    "incident_id": "INC-2026-5G-002",
+    "timestamp": "2026-08-30T10:18:45Z",
+    "cell_id": "gNB_Cell_204_Sector2",
+    "neighbor_cell_id": null,
+    "severity": "MAJOR",
+    "alarm_type": "PUSCH_UPLINK_INTERFERENCE_HIGH_BLER",
+    "probable_cause": "Severe uplink interference / external RF jammer causing SINR degradation",
+    "kpi_snapshot": {
+      "RSRP_serving_dBm": -82.0,
+      "RSRQ_serving_dB": -12.0,
+      "SINR_serving_dB": -5.8,
+      "BLER_percent": 38.2,
+      "PRB_utilization_percent": 81.0,
+      "current_P0_PUSCH_dBm": -96.0,
+      "current_RET_tilt_deg": 4.0,
+      "UL_throughput_mbps": 1.2
+    },
+    "raw_log": "[2026-08-30 10:18:45.320] [PHY-ALARM] gNB_Cell_204: High PUSCH noise floor detected on BWP 1. Uplink SINR dropped to -5.8 dB, BLER > 35%. Possible adjacent channel interference per TS 38.213 \u00a77.1."
+  },
+  {
+    "incident_id": "INC-2026-5G-003",
+    "timestamp": "2026-08-30T10:22:10Z",
+    "cell_id": "O_CU_Node_01",
+    "neighbor_cell_id": null,
+    "severity": "CRITICAL",
+    "alarm_type": "ORAN_E2_INTERFACE_DISCONNECT",
+    "probable_cause": "SCTP heartbeat timeout between Near-RT RIC and O-CU-CP",
+    "kpi_snapshot": {
+      "E2_latency_ms": 145.0,
+      "F1_latency_ms": 14.2,
+      "E2_packet_loss_percent": 100.0,
+      "Active_xApps": [
+        "TrafficSteering_xApp",
+        "MRO_xApp",
+        "MLB_xApp"
+      ]
+    },
+    "raw_log": "[2026-08-30 10:22:10.890] [ORAN-ERR] Near-RT RIC: SCTP association to E2 Node (O-CU-CP 0x01) lost. Error: SCTP_COMMUNICATION_LOST per O-RAN.WG3.E2AP \u00a78.3.1. xApps transitioning to safe fallback mode."
+  },
+  {
+    "incident_id": "INC-2026-5G-004",
+    "timestamp": "2026-08-30T10:25:50Z",
+    "cell_id": "gNB_Cell_309_Sector1",
+    "neighbor_cell_id": null,
+    "severity": "MAJOR",
+    "alarm_type": "NGAP_PDU_SESSION_SETUP_FAILURE",
+    "probable_cause": "NGAP Initial Context Setup Failure due to N3 GTP-U transport congestion",
+    "kpi_snapshot": {
+      "N2_setup_failure_rate_percent": 31.5,
+      "N3_GTPU_packet_drop_percent": 18.4,
+      "PRB_utilization_percent": 64.0,
+      "requested_5QI": 1
+    },
+    "raw_log": "[2026-08-30 10:25:50.412] [CORE-ERR] gNB_Cell_309: NGAP INITIAL CONTEXT SETUP FAILURE sent to AMF. Cause: Transport Resource Unavailable on N3 GTP-U tunnel for 5QI=1 per TS 38.413 \u00a78.2.1."
+  }
+]

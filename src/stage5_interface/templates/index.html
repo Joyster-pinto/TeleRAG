@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeleRAG</title>
+  <style>
+    :root {
+      --bg-main: #131314;
+      --bg-sidebar: #1e1f20;
+      --bg-pill: #1e1f20;
+      --bg-pill-focus: #282a2c;
+      --bg-user-bubble: #282a2c;
+      --bg-hover: #282a2c;
+      --bg-active: #004a77;
+      --text-primary: #e3e3e3;
+      --text-secondary: #c4c7c5;
+      --text-muted: #8e918f;
+      --accent-blue: #a8c7fa;
+      --accent-green: #81c995;
+      --border-subtle: #333537;
+      --font-sans: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: #333537 transparent;
+    }
+
+    /* Clean Minimalist Dark Scrollbars (Gemini Style) */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #333537;
+      border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #484a4d;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Left Sidebar (Past Chats) */
+    aside.sidebar {
+      width: 270px;
+      min-width: 270px;
+      background-color: var(--bg-sidebar);
+      display: flex;
+      flex-direction: column;
+      padding: 0.85rem 0.75rem;
+      transition: margin-left 0.25s ease;
+      user-select: none;
+    }
+
+    aside.sidebar.collapsed {
+      margin-left: -270px;
+    }
+
+    .sidebar-top {
+      display: flex;
+      align-items: center;
+      padding: 0.25rem 0.4rem 1rem;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.15s;
+    }
+
+    .icon-btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .new-chat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      background-color: #1a1a1c;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.86rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin: 0 0.25rem 1.25rem;
+      width: fit-content;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .new-chat-pill:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .recent-label {
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 0 0.75rem 0.5rem;
+    }
+
+    .chat-history-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      padding-right: 0.2rem;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 999px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .history-item:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .history-item.active {
+      background-color: var(--bg-active);
+      color: #d3e3fd;
+      font-weight: 500;
+    }
+
+    .history-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .delete-chat-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.95rem;
+      opacity: 0;
+      padding: 0 0.25rem;
+      border-radius: 50%;
+    }
+
+    .history-item:hover .delete-chat-btn {
+      opacity: 1;
+    }
+
+    .delete-chat-btn:hover {
+      color: var(--text-primary);
+    }
+
+    /* Center Main Chat Area */
+    main.main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      min-width: 0;
+      position: relative;
+    }
+
+    header.top-bar {
+      height: 58px;
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .model-title {
+      font-size: 1.08rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    /* Scrollable Chat Area */
+    .chat-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2.1rem;
+    }
+
+    /* Empty / New Chat Greeting */
+    .empty-state {
+      margin: auto 0;
+      padding: 2rem 0 3rem;
+    }
+
+    .greeting-gradient {
+      font-size: 2.5rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      background: linear-gradient(90deg, #4285f4 0%, #9b72cb 50%, #d96570 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      margin-bottom: 0.35rem;
+    }
+
+    .greeting-sub {
+      font-size: 2.1rem;
+      font-weight: 500;
+      color: #444746;
+      letter-spacing: -0.02em;
+      margin-bottom: 2.1rem;
+    }
+
+    .suggestion-chips {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .suggestion-card {
+      background-color: var(--bg-sidebar);
+      border: 1px solid transparent;
+      border-radius: 16px;
+      padding: 1rem;
+      color: var(--text-primary);
+      font-size: 0.86rem;
+      line-height: 1.45;
+      text-align: left;
+      cursor: pointer;
+      min-height: 115px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .suggestion-card:hover {
+      background-color: var(--bg-hover);
+      border-color: var(--border-subtle);
+    }
+
+    .suggestion-card span.chip-label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+    }
+
+    /* Conversation Messages */
+    .message-turn {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-message-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .user-bubble {
+      background-color: var(--bg-user-bubble);
+      color: var(--text-primary);
+      padding: 0.8rem 1.2rem;
+      border-radius: 20px;
+      border-bottom-right-radius: 6px;
+      max-width: 82%;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .bot-message-row {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .sparkle-icon {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      color: var(--accent-blue);
+      margin-top: 0.1rem;
+    }
+
+    .bot-content {
+      flex: 1;
+      font-size: 0.95rem;
+      line-height: 1.68;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      gap: 0.95rem;
+    }
+
+    .bot-content code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      background: var(--bg-sidebar);
+      padding: 0.12rem 0.38rem;
+      border-radius: 5px;
+      color: var(--accent-blue);
+    }
+
+    .section-heading {
+      font-size: 0.96rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 0.25rem;
+    }
+
+    /* Interactive Inline Citation Pill */
+    .inline-cite-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.28rem;
+      font-family: var(--font-mono);
+      font-size: 0.77rem;
+      background: rgba(168, 199, 250, 0.12);
+      color: var(--accent-blue);
+      border: 1px solid rgba(168, 199, 250, 0.35);
+      padding: 0.15rem 0.58rem;
+      border-radius: 6px;
+      cursor: pointer;
+      vertical-align: middle;
+      margin: 0 0.15rem;
+      transition: all 0.15s ease;
+    }
+
+    .inline-cite-pill:hover {
+      background: rgba(168, 199, 250, 0.25);
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    /* Ranked Root Cause Cards inside Answer */
+    .ranked-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .ranked-card {
+      background-color: var(--bg-sidebar);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 0.85rem 1.05rem;
+    }
+
+    .ranked-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .rank-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: #fff;
+    }
+
+    .cite-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      background: rgba(168, 199, 250, 0.12);
+      color: var(--accent-blue);
+      border: 1px solid rgba(168, 199, 250, 0.28);
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .cite-pill:hover {
+      background: rgba(168, 199, 250, 0.24);
+    }
+
+    .ranked-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Workflow Steps */
+    .workflow-list {
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+    }
+
+    .workflow-list li {
+      line-height: 1.6;
+    }
+
+    /* Parameters Box */
+    .params-summary {
+      background-color: var(--bg-sidebar);
+      border-radius: 12px;
+      padding: 0.8rem 1.05rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    .param-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .param-item span.k {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .param-item span.v {
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+      margin-top: 0.1rem;
+    }
+
+    .note-callout {
+      background-color: rgba(168, 199, 250, 0.07);
+      border-left: 3px solid var(--accent-blue);
+      padding: 0.7rem 1rem;
+      border-radius: 0 10px 10px 0;
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+    }
+
+    /* Button to Open Right Citations Window */
+    .open-sources-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--accent-blue);
+      background-color: var(--bg-sidebar);
+      border: 1px solid var(--border-subtle);
+      padding: 0.45rem 0.95rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .open-sources-btn:hover {
+      background-color: var(--bg-hover);
+      border-color: var(--accent-blue);
+    }
+
+    /* Right Side Citations & Actual Document Viewer Panel */
+    aside.right-citations-panel {
+      width: 520px;
+      min-width: 520px;
+      background-color: var(--bg-sidebar);
+      border-left: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      transition: margin-right 0.25s ease;
+    }
+
+    aside.right-citations-panel.closed {
+      margin-right: -520px;
+    }
+
+    .right-panel-header {
+      height: 58px;
+      padding: 0 1.15rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .right-panel-title {
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .verified-tag {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      background: rgba(129, 201, 149, 0.14);
+      color: var(--accent-green);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .right-panel-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-subtle);
+      background-color: #161718;
+    }
+
+    .right-tab-btn {
+      flex: 1;
+      padding: 0.6rem 0.85rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .right-tab-btn.active {
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+      background-color: var(--bg-sidebar);
+    }
+
+    .right-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .right-section-label {
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .citation-card {
+      background-color: var(--bg-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.95rem 1.05rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+    }
+
+    .citation-card.highlight-pulse {
+      border-color: var(--accent-blue) !important;
+      box-shadow: 0 0 16px rgba(168, 199, 250, 0.35);
+      background-color: rgba(22, 35, 60, 0.95) !important;
+    }
+
+    .citation-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .citation-doc-title {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+
+    .citation-score {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--bg-sidebar);
+      padding: 0.12rem 0.45rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .citation-excerpt {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .view-doc-link {
+      font-size: 0.78rem;
+      color: var(--accent-blue);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      width: fit-content;
+      margin-top: 0.2rem;
+      text-decoration: underline;
+    }
+
+    .reasoning-step-item {
+      background-color: var(--bg-main);
+      border-left: 2px solid var(--accent-blue);
+      padding: 0.55rem 0.75rem;
+      border-radius: 0 8px 8px 0;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Actual Document View In Right Panel */
+    .doc-viewer-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .doc-viewer-header {
+      background: var(--bg-main);
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .doc-viewer-header h3 {
+      font-size: 0.92rem;
+      color: var(--accent-blue);
+      margin-bottom: 0.2rem;
+    }
+
+    .doc-viewer-header p {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .doc-section-block {
+      background: var(--bg-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.9rem 1.05rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      transition: all 0.25s ease;
+    }
+
+    .doc-section-block.active-target {
+      border-color: var(--accent-blue) !important;
+      background: rgba(22, 35, 60, 0.95) !important;
+      box-shadow: 0 0 16px rgba(168, 199, 250, 0.4);
+    }
+
+    .doc-sec-num {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .doc-sec-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: rgba(168, 199, 250, 0.15);
+      color: var(--accent-blue);
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .doc-sec-content {
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      line-height: 1.62;
+    }
+
+    /* Bottom Floating Gemini Pill Input */
+    .input-area-wrapper {
+      padding: 0.5rem 1.25rem 1.25rem;
+      background: linear-gradient(180deg, transparent 0%, var(--bg-main) 30%);
+    }
+
+    .input-pill {
+      max-width: 760px;
+      margin: 0 auto;
+      background-color: var(--bg-pill);
+      border-radius: 28px;
+      padding: 0.65rem 0.85rem 0.65rem 1.35rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 0.75rem;
+      transition: background 0.15s;
+    }
+
+    .input-pill:focus-within {
+      background-color: var(--bg-pill-focus);
+    }
+
+    .input-pill textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.96rem;
+      line-height: 1.5;
+      resize: none;
+      max-height: 160px;
+      padding: 0.25rem 0;
+    }
+
+    .input-pill textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-circle-btn {
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      border-radius: 50%;
+      border: none;
+      background-color: var(--accent-blue);
+      color: #062e6f;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+
+    .send-circle-btn:disabled {
+      background-color: #333537;
+      color: var(--text-muted);
+      cursor: default;
+    }
+
+    .footer-caption {
+      text-align: center;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      margin-top: 0.6rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Left Sidebar: Past Chats -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <button class="icon-btn" onclick="toggleSidebar()" title="Collapse menu">☰</button>
+    </div>
+
+    <button class="new-chat-pill" onclick="startNewChat()">
+      <span style="font-size:1.1rem;">+</span>
+      <span>New chat</span>
+    </button>
+
+    <div class="recent-label">Recent</div>
+    <div class="chat-history-list" id="chat-history-list"></div>
+  </aside>
+
+  <!-- Center Main Chat Workspace -->
+  <main class="main-area">
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button class="icon-btn" id="open-sidebar-btn" onclick="toggleSidebar()" style="display:none;" title="Expand menu">☰</button>
+        <span class="model-title">TeleRAG</span>
+      </div>
+    </header>
+
+    <div class="chat-scroll" id="chat-scroll">
+      <div class="chat-container" id="chat-container"></div>
+    </div>
+
+    <div class="input-area-wrapper">
+      <div class="input-pill">
+        <textarea
+          id="prompt-input"
+          rows="1"
+          placeholder="Ask TeleRAG about a network issue or 3GPP standard"
+          oninput="autoGrow(this)"
+          onkeydown="handleKey(event)"
+        ></textarea>
+        <button class="send-circle-btn" id="send-btn" onclick="submitPrompt()" disabled title="Send">
+          ↑
+        </button>
+      </div>
+      <div class="footer-caption">
+        TeleRAG verifies responses against 3GPP &amp; O-RAN specifications.
+      </div>
+    </div>
+  </main>
+
+  <!-- Right Side Window: Citations & Actual 3GPP Document Viewer -->
+  <aside class="right-citations-panel closed" id="right-citations-panel">
+    <div class="right-panel-header">
+      <div class="right-panel-title">
+        <span id="right-header-title">✦ 3GPP Document &amp; Citations</span>
+        <span class="verified-tag" id="right-verified-badge">Verified</span>
+      </div>
+      <button class="icon-btn" onclick="closeCitationsPanel()" title="Close citations">×</button>
+    </div>
+
+    <!-- Navigation Tabs inside Right Window -->
+    <div class="right-panel-tabs">
+      <button class="right-tab-btn active" id="tab-citations" onclick="switchRightTab('citations')">Citations Summary</button>
+      <button class="right-tab-btn" id="tab-document" onclick="switchRightTab('document')">Specification Document</button>
+    </div>
+
+    <div class="right-panel-body" id="right-panel-body">
+      <div style="color:var(--text-muted); font-size:0.85rem;">
+        Click any Section reference or the sources button to inspect citations here.
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    const STORAGE_KEY = 'telerag_past_chats_v4';
+    let chats = [];
+    let currentChatId = null;
+    let messagePayloadStore = {};
+    let msgCounter = 0;
+    let activeRightTab = 'citations';
+    let cachedDocData = null;
+    let targetSectionToHighlight = null;
+
+    function loadChatsFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        chats = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        chats = [];
+      }
+      renderHistoryList();
+    }
+
+    function saveChatsToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
+      } catch (e) {}
+      renderHistoryList();
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      const openBtn = document.getElementById('open-sidebar-btn');
+      sb.classList.toggle('collapsed');
+      openBtn.style.display = sb.classList.contains('collapsed') ? 'grid' : 'none';
+    }
+
+    function closeCitationsPanel() {
+      document.getElementById('right-citations-panel').classList.add('closed');
+    }
+
+    function switchRightTab(tabName) {
+      activeRightTab = tabName;
+      document.getElementById('tab-citations').classList.toggle('active', tabName === 'citations');
+      document.getElementById('tab-document').classList.toggle('active', tabName === 'document');
+
+      if (tabName === 'document') {
+        renderDocumentView();
+      } else {
+        renderCitationsSummaryView();
+      }
+    }
+
+    function openCitationsForTurn(turnId) {
+      const botData = messagePayloadStore[turnId];
+      if (!botData) return;
+
+      window.currentActiveBotData = botData;
+      const panel = document.getElementById('right-citations-panel');
+      panel.classList.remove('closed');
+
+      switchRightTab('citations');
+    }
+
+    function renderCitationsSummaryView() {
+      const botData = window.currentActiveBotData;
+      if (!botData) return;
+
+      const body = document.getElementById('right-panel-body');
+      const badge = document.getElementById('right-verified-badge');
+
+      const reply = botData.assistant_reply || {};
+      const ver = botData.stage4_verifier || {};
+      const synth = botData.stage5_synthesis || {};
+      const clauses = reply.supporting_clauses || [];
+      const cot = synth.chain_of_thought || [];
+
+      badge.textContent = `Verified`;
+
+      const clausesHtml = clauses.map((c, idx) => {
+        const secClean = String(c.section_id || '').replace(/\./g, '_');
+        const cardId = `cite-card-${secClean}`;
+        const docId = c.doc_id || c.spec_number || 'TS_38.331';
+        return `
+          <div class="citation-card" id="${cardId}">
+            <div class="citation-card-top">
+              <span class="citation-doc-title">[${idx + 1}] ${escapeHtml(c.clause || c.clean_ref)}</span>
+              <span class="citation-score">DEW-RRF: ${c.dew_rrf}</span>
+            </div>
+            <div class="citation-excerpt">"${escapeHtml(c.text)}"</div>
+            <div style="display:flex;gap:0.75rem;margin-top:0.35rem;">
+              <a class="view-doc-link" onclick="openFullDocumentView('${escapeHtml(docId)}', '${escapeHtml(c.section_id || '')}')">
+                📖 Open Document View →
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const cotHtml = cot.map((step, i) => `
+        <div class="reasoning-step-item">
+          <strong>${String(i + 1).padStart(2, '0')}.</strong> ${escapeHtml(step)}
+        </div>
+      `).join('');
+
+      body.innerHTML = `
+        <div class="right-section-label">Referenced 3GPP &amp; O-RAN Sections (${clauses.length})</div>
+        ${clausesHtml || '<div style="font-size:0.82rem;color:var(--text-muted);">No sections cited.</div>'}
+
+        <div class="right-section-label" style="margin-top:0.5rem;">5-Stage Agent Execution Trace (${cot.length} steps)</div>
+        ${cotHtml}
+      `;
+    }
+
+    async function openFullDocumentView(docId, sectionId) {
+      const panel = document.getElementById('right-citations-panel');
+      panel.classList.remove('closed');
+
+      targetSectionToHighlight = sectionId;
+      document.getElementById('right-panel-body').innerHTML = `
+        <div style="color:var(--accent-blue);font-family:var(--font-mono);font-size:0.82rem;padding:1rem;">
+          Loading full 3GPP specification document for ${escapeHtml(docId)}...
+        </div>
+      `;
+
+      try {
+        const res = await fetch(`/api/document_content/${encodeURIComponent(docId)}`);
+        cachedDocData = await res.json();
+        switchRightTab('document');
+      } catch (err) {
+        document.getElementById('right-panel-body').innerHTML = `
+          <div style="color:#f28b82;padding:1rem;">Failed to load document: ${escapeHtml(err.message)}</div>
+        `;
+      }
+    }
+
+    function renderDocumentView() {
+      if (!cachedDocData) {
+        // If not fetched yet, fetch first cited doc
+        const botData = window.currentActiveBotData;
+        const firstDoc = botData?.assistant_reply?.supporting_clauses?.[0]?.doc_id || 'TS_38.331';
+        openFullDocumentView(firstDoc, targetSectionToHighlight);
+        return;
+      }
+
+      const body = document.getElementById('right-panel-body');
+      const doc = cachedDocData;
+      const sections = doc.sections || [];
+
+      const sectionsHtml = sections.map(sec => {
+        const isTarget = targetSectionToHighlight && String(sec.section_id) === String(targetSectionToHighlight);
+        const secIdClean = String(sec.section_id).replace(/\./g, '_');
+        return `
+          <div class="doc-section-block ${isTarget ? 'active-target' : ''}" id="doc-sec-${secIdClean}">
+            <div class="doc-sec-num">
+              <span>Section ${escapeHtml(sec.section_id)} — ${escapeHtml(sec.title)}</span>
+              ${isTarget ? '<span class="doc-sec-badge">★ CITED CLAUSE</span>' : ''}
+            </div>
+            <div class="doc-sec-content">${escapeHtml(sec.content)}</div>
+          </div>
+        `;
+      }).join('');
+
+      body.innerHTML = `
+        <div class="doc-viewer-container">
+          <div class="doc-viewer-header">
+            <h3>${escapeHtml(doc.doc_id || doc.spec_number)} (${escapeHtml(doc.release || 'Rel-17')})</h3>
+            <p>${escapeHtml(doc.title || '3GPP Technical Specification')}</p>
+          </div>
+          <div class="right-section-label">Specification Document Sections (${sections.length})</div>
+          ${sectionsHtml}
+        </div>
+      `;
+
+      if (targetSectionToHighlight) {
+        const secIdClean = String(targetSectionToHighlight).replace(/\./g, '_');
+        setTimeout(() => {
+          const targetEl = document.getElementById(`doc-sec-${secIdClean}`);
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 150);
+      }
+    }
+
+
+
+    function openSectionInRightDrawer(docOrSpec, sectionId, e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      // Open directly in the full 3GPP Document View with that clause highlighted
+      openFullDocumentView(docOrSpec, sectionId);
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function formatSimpleMarkdown(text) {
+      if (!text) return '';
+      // Strip any lingering document metadata brackets e.g. [ORAN_WG3_E2 v03.00 §8.3.1 ...] or [TS_... ...]
+      let cleanText = String(text)
+        .replace(/^\s*\[(?:TS_|ORAN_|3GPP)[^\]]+\]\s*/gi, '')
+        .replace(/\[(?:TS_|ORAN_|3GPP)[^\]]+\]\s*/gi, '')
+        .replace(/\[[A-Za-z0-9\s&/\-]+(?:Agent|Verifier|Supervisor)\]\s*/gi, '')
+        .replace(/\s*\[(?:3GPP|O-RAN|TS|ORAN)[^\]]*\](?=[:\.\s]|$)/gi, '')
+        .replace(/§/g, 'Section ')
+        .replace(/\s*\|\s*/g, '\n\n');
+
+      let escaped = escapeHtml(cleanText)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`(.*?)`/g, '<code>$1</code>');
+
+      // Make any occurrence of 3GPP TS xx.xxx Section x.x (or TS_xx.xxx Section x.x) into a clickable interactive button
+      escaped = escaped.replace(/(?:3GPP\s+)?TS[_\s]+(\d+\.\d+)[_\s]*(?:\(|§|Section|clause)?\s*([0-9\.]+)\)?/gi, (match, spec, sec) => {
+        return `<button class="inline-cite-pill" onclick="openSectionInRightDrawer('${spec}', '${sec}', event)" title="Open actual 3GPP document &amp; highlight Section ${sec}">📖 3GPP TS ${spec} Section ${sec}</button>`;
+      });
+
+      escaped = escaped.replace(/O-RAN[_\s\.]+(?:WG\d+)?[_\s\.]+(?:E2AP)?[_\s]*(?:\(|§|Section|clause)?\s*([0-9\.]+)\)?/gi, (match, sec) => {
+        return `<button class="inline-cite-pill" onclick="openSectionInRightDrawer('ORAN_WG3_E2', '${sec}', event)" title="Open actual O-RAN document &amp; highlight Section ${sec}">📖 O-RAN WG3 E2AP Section ${sec}</button>`;
+      });
+
+      return escaped;
+    }
+
+    function autoGrow(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+      document.getElementById('send-btn').disabled = el.value.trim().length === 0;
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitPrompt();
+      }
+    }
+
+    function renderHistoryList() {
+      const list = document.getElementById('chat-history-list');
+      if (chats.length === 0) {
+        list.innerHTML = `<div style="padding:0.5rem 0.75rem; font-size:0.8rem; color:var(--text-muted);">No past chats yet</div>`;
+        return;
+      }
+
+      list.innerHTML = chats.map(c => `
+        <div class="history-item ${c.id === currentChatId ? 'active' : ''}" onclick="selectChat('${c.id}')">
+          <div class="history-title">
+            <span>💬</span>
+            <span>${escapeHtml(c.title)}</span>
+          </div>
+          <button class="delete-chat-btn" onclick="deleteChat(event, '${c.id}')" title="Delete chat">×</button>
+        </div>
+      `).join('');
+    }
+
+    function startNewChat() {
+      currentChatId = null;
+      closeCitationsPanel();
+      renderHistoryList();
+      renderEmptyState();
+      document.getElementById('prompt-input').focus();
+    }
+
+    function selectChat(chatId) {
+      const found = chats.find(c => c.id === chatId);
+      if (!found) return;
+      currentChatId = found.id;
+      closeCitationsPanel();
+      renderHistoryList();
+      renderChatMessages(found.messages);
+    }
+
+    function deleteChat(e, chatId) {
+      e.stopPropagation();
+      chats = chats.filter(c => c.id !== chatId);
+      if (currentChatId === chatId) {
+        currentChatId = null;
+        closeCitationsPanel();
+        renderEmptyState();
+      }
+      saveChatsToStorage();
+    }
+
+    function renderEmptyState() {
+      const container = document.getElementById('chat-container');
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="greeting-gradient">Hello, Operator</div>
+          <div class="greeting-sub">How can I help with your network today?</div>
+        </div>
+      `;
+    }
+
+    function useSuggestion(text) {
+      const input = document.getElementById('prompt-input');
+      input.value = text;
+      autoGrow(input);
+      submitPrompt();
+    }
+
+    function renderChatMessages(messages) {
+      const container = document.getElementById('chat-container');
+      container.innerHTML = '';
+      messages.forEach(m => {
+        container.appendChild(buildMessageTurnElement(m.userText, m.botData));
+      });
+      scrollToBottom();
+    }
+
+    function buildMessageTurnElement(userText, botData) {
+      const turn = document.createElement('div');
+      turn.className = 'message-turn';
+
+      const userRow = `
+        <div class="user-message-row">
+          <div class="user-bubble">${escapeHtml(userText)}</div>
+        </div>
+      `;
+
+      if (!botData) {
+        turn.innerHTML = userRow + `
+          <div class="bot-message-row">
+            <div class="sparkle-icon">✦</div>
+            <div class="bot-content" style="color:var(--text-muted);">
+              Analyzing 3GPP &amp; O-RAN specifications...
+            </div>
+          </div>
+        `;
+        return turn;
+      }
+
+      const turnId = 'turn_' + (++msgCounter);
+      messagePayloadStore[turnId] = botData;
+
+      const reply = botData.assistant_reply || {};
+      const clauses = reply.supporting_clauses || [];
+      const rankedCauses = reply.ranked_causes || [];
+      const workflowSteps = reply.workflow_steps || [];
+      const params = reply.recommended_parameters || {};
+      const paramKeys = Object.keys(params);
+
+      // Build Ranked Root-Cause Diagnosis Cards
+      let rankedHtml = '';
+      if (rankedCauses.length > 0) {
+        rankedHtml = `
+          <div class="section-heading">Ranked Root-Cause Diagnosis Plan</div>
+          <div class="ranked-list">
+            ${rankedCauses.map(rc => {
+              const sec = rc.section_id || '';
+              const doc = rc.doc_id || '';
+              return `
+                <div class="ranked-card">
+                  <div class="ranked-card-header">
+                    <span class="rank-title">Rank ${rc.rank}: ${escapeHtml(rc.title)}</span>
+                    <button class="cite-pill" onclick="openSectionInRightDrawer('${escapeHtml(doc)}', '${escapeHtml(sec)}', event)" title="Open actual 3GPP document &amp; highlight Section ${escapeHtml(sec)}">
+                      📖 ${escapeHtml(rc.citation_ref)}
+                    </button>
+                  </div>
+                  <p>${formatSimpleMarkdown(rc.explanation)}</p>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      // Build Troubleshooting & Remediation Workflow Steps
+      let workflowHtml = '';
+      if (workflowSteps.length > 0) {
+        workflowHtml = `
+          <div class="section-heading">3GPP / O-RAN Troubleshooting &amp; Remediation Workflow</div>
+          <ol class="workflow-list">
+            ${workflowSteps.map(step => `<li>${formatSimpleMarkdown(step)}</li>`).join('')}
+          </ol>
+        `;
+      }
+
+      // Build Verified Parameters Box
+      let paramsHtml = '';
+      if (paramKeys.length > 0) {
+        paramsHtml = `
+          <div class="params-summary">
+            ${paramKeys.map(k => `
+              <div class="param-item">
+                <span class="k">${escapeHtml(k)}</span>
+                <span class="v">${escapeHtml(params[k])}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      // Build Self-Correction Callout (if triggered)
+      let correctionHtml = '';
+      if (reply.self_correction_summary) {
+        correctionHtml = `
+          <div class="note-callout">
+            ${formatSimpleMarkdown(reply.self_correction_summary)}
+          </div>
+        `;
+      }
+
+      turn.innerHTML = userRow + `
+        <div class="bot-message-row">
+          <div class="sparkle-icon">✦</div>
+          <div class="bot-content">
+            <p>${formatSimpleMarkdown(reply.primary_explanation || '')}</p>
+            ${rankedHtml}
+            ${workflowHtml}
+            ${correctionHtml}
+            ${paramsHtml}
+
+            <button class="open-sources-btn" onclick="openCitationsForTurn('${turnId}')">
+              <span>✦ ${clauses.length} 3GPP / O-RAN sections &amp; reasoning</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      `;
+      return turn;
+    }
+
+    function scrollToBottom() {
+      const scroller = document.getElementById('chat-scroll');
+      scroller.scrollTop = scroller.scrollHeight;
+    }
+
+    async function submitPrompt() {
+      const input = document.getElementById('prompt-input');
+      const sendBtn = document.getElementById('send-btn');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.style.height = 'auto';
+      sendBtn.disabled = true;
+
+      if (!currentChatId) {
+        currentChatId = 'chat_' + Date.now();
+        const shortTitle = text.length > 34 ? text.slice(0, 34) + '...' : text;
+        chats.unshift({
+          id: currentChatId,
+          title: shortTitle,
+          messages: []
+        });
+      }
+
+      const activeChat = chats.find(c => c.id === currentChatId);
+      const container = document.getElementById('chat-container');
+
+      const emptyEl = container.querySelector('.empty-state');
+      if (emptyEl) container.innerHTML = '';
+
+      const pendingTurn = buildMessageTurnElement(text, null);
+      container.appendChild(pendingTurn);
+      scrollToBottom();
+      renderHistoryList();
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+
+        const completedTurn = buildMessageTurnElement(text, data);
+        container.replaceChild(completedTurn, pendingTurn);
+
+        activeChat.messages.push({ userText: text, botData: data });
+        saveChatsToStorage();
+      } catch (err) {
+        pendingTurn.querySelector('.bot-content').innerHTML = `<span style="color:#f28b82;">Unable to reach TeleRAG server: ${escapeHtml(err.message)}</span>`;
+      } finally {
+        scrollToBottom();
+      }
+    }
+
+    loadChatsFromStorage();
+    renderEmptyState();
+  </script>
+</body>
+</html>

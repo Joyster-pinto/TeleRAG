@@ -25,3 +25,9 @@ literature_survey_and_architecture_da1.md
 # OS
 .DS_Store
 Thumbs.db
+
+# Large Model Weights (Exceeds GitHub 100MB limit)
+models/
+*.gguf
+*.bin
+

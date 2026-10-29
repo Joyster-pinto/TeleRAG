@@ -1,0 +1,102 @@
+[
+  {
+    "doc_id": "TS_38.331",
+    "spec_number": "38.331",
+    "release": "Rel-17",
+    "title": "NR; Radio Resource Control (RRC); Protocol specification",
+    "sections": [
+      {
+        "section_id": "5.3.3.3",
+        "title": "RRC Connection Establishment - RRCSetupRequest & Timer T300",
+        "content": "The UE initiates the RRC connection establishment procedure by starting timer T300 (allowed values: ms100, ms200, ms300, ms400, ms600, ms1000, ms1500, ms2000) and transmitting RRCSetupRequest (Msg3 over PUSCH) following Random Access preamble (Msg1) and Random Access Response (Msg2). If degraded Uplink SINR or PUSCH interference prevents the gNodeB from decoding Msg3 RRCSetupRequest or if the UE fails to receive RRCSetup (Msg4) before timer T300 expires, the UE resets MAC, releases the MAC configuration, and records an RRC Setup Failure."
+      },
+      {
+        "section_id": "5.3.5.3",
+        "title": "RRC Reconfiguration - Handover Execution",
+        "content": "The UE shall perform handover execution upon reception of RRCReconfiguration message containing the reconfigurationWithSync field. The UE starts timer T304 with the timer value set to the value received in reconfigurationWithSync for the target SpCell. Allowed values for timer T304 are ms50, ms100, ms150, ms200, ms500, ms1000, ms2000, and ms10000. The UE initiates Random Access procedure on the target SpCell in accordance with 3GPP TS 38.321. If timer T304 expires before the Random Access procedure completes successfully, the UE initiates the RRC Connection Re-establishment procedure as specified in clause 5.3.7."
+      },
+      {
+        "section_id": "5.3.7.2",
+        "title": "Radio Link Failure (RLF) Detection & Timers",
+        "content": "The UE shall start timer T310 upon receiving N310 consecutive out-of-sync indications from lower layers for the SpCell. While timer T310 is running, if the UE receives N311 consecutive in-sync indications from lower layers for the SpCell, the UE shall stop timer T310. If timer T310 expires, the UE determines Radio Link Failure (RLF) to be detected. Upon RLF detection, the UE initiates connection re-establishment by starting timer T311 and selecting a suitable cell."
+      },
+      {
+        "section_id": "5.5.4.4",
+        "title": "Event A3 - Neighbor Becomes Offset Better than SpCell",
+        "content": "Event A3 is triggered when the measurement result of a neighboring cell becomes better than the serving SpCell by a defined Cell Individual Offset (CIO) and Hysteresis. The entry condition for Event A3 is: Mn + Ofn + Ocn - Hys > Mp + Ofp + Ocp + Off. The parameter Ocn corresponds to the Cell Individual Offset of the neighbor cell, configured within the range [-24 dB, +24 dB] in steps of 0.5 dB. Hysteresis (Hys) is configured in [0 dB, 15 dB] in steps of 0.5 dB. The Time to Trigger (TTT) parameter delays measurement report generation (valid values: 0, 40, 64, 80, 100, 128, 160, 256, 320, 480, 512, 640, 1024, 1280, 2560, 5120 ms) to suppress Ping-Pong handovers."
+      }
+    ]
+  },
+  {
+    "doc_id": "TS_38.213",
+    "spec_number": "38.213",
+    "release": "Rel-17",
+    "title": "NR; Physical layer procedures for control",
+    "sections": [
+      {
+        "section_id": "7.1",
+        "title": "Uplink Power Control & PUSCH Transmission",
+        "content": "For PUSCH transmission on active UL BWP b of carrier f of serving cell c, the UE determines transmit power P_PUSCH(i) based on target P0_PUSCH, pathloss compensation factor alpha in {0.0, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0}, downlink pathloss PL_c, and TPC commands. P0_NominalWithGrant is bounded within [-202 dBm, +24 dBm]. High PUSCH interference from adjacent cells or external jammers degrades uplink Signal-to-Interference-plus-Noise Ratio (SINR). When uplink SINR falls below -3 dB, Block Error Rate (BLER) increases above target 10% threshold, triggering excessive HARQ retransmissions and RLC resets."
+      },
+      {
+        "section_id": "8.1",
+        "title": "Random Access Preamble Transmission (PRACH)",
+        "content": "Physical Random Access Channel (PRACH) transmits preambles for initial access, handover, and beam failure recovery. Contention Based Random Access (CBRA) preambles are partitioned across groups A and B. High PRACH collision rates occur when multiple UEs select the identical preamble index during RACH storms or bursty cell reselection."
+      },
+      {
+        "section_id": "6.1",
+        "title": "Beam Failure Detection and Recovery (BFR)",
+        "content": "The physical layer assesses radio link quality of periodic CSI-RS or SSB resources in the beam failure detection set q0. When hypothetical PDCCH BLER exceeds 10% threshold, PHY provides a Beam Failure Instance (BFI) indication to MAC. Once BFI_COUNTER reaches maxCount, Beam Failure Recovery (BFR) is initiated via CFRA on candidate beam q1."
+      }
+    ]
+  },
+  {
+    "doc_id": "TS_38.413",
+    "spec_number": "38.413",
+    "release": "Rel-17",
+    "title": "NG-RAN; NG Application Protocol (NGAP)",
+    "sections": [
+      {
+        "section_id": "8.2.1",
+        "title": "Initial Context Setup - PDU Session Establishment",
+        "content": "The INITIAL CONTEXT SETUP REQUEST message is sent by the 5G Core AMF to establish UE context and PDU sessions over the N2 interface. If the gNodeB cannot allocate requested QoS resources (5QI) or GTP-U transport tunnel capacity over N3, it responds with INITIAL CONTEXT SETUP FAILURE with NGAP Cause set to 'Radio resources not available' or 'Transport Resource Unavailable'."
+      },
+      {
+        "section_id": "8.4.1",
+        "title": "Handover Preparation & Execution over NG / Xn",
+        "content": "The gNodeB initiates Handover Required message over NGAP when inter-gNodeB Xn interface is unavailable. Target gNodeB allocates target cell resources and returns Handover Request Acknowledge with transparent RRCReconfiguration container. If target cell lacks admission capacity, Handover Preparation Failure is returned."
+      }
+    ]
+  },
+  {
+    "doc_id": "TS_28.541",
+    "spec_number": "28.541",
+    "release": "Rel-17",
+    "title": "Management and orchestration; 5G Network Resource Model (NRM)",
+    "sections": [
+      {
+        "section_id": "4.3.1",
+        "title": "SON Parameter Optimization - CIO & Antenna Tilt",
+        "content": "Self-Organizing Network (SON) algorithms perform Coverage and Capacity Optimization (CCO), Mobility Load Balancing (MLB), and Mobility Robustness Optimization (MRO). Remote Electrical Tilt (RET) adjustments shall remain within [0 deg, 10 deg] total downtilt to prevent cell footprint holes. Cell Individual Offset (CIO) tuning must be bounded within [-24 dB, +24 dB] with 0.5 dB granularity to avoid ping-pong handovers with adjacent neighbor cell relations (ANR). When neighbor cell PRB utilization exceeds 85%, MLB prohibits positive CIO shifts > +2.0 dB toward the congested neighbor."
+      }
+    ]
+  },
+  {
+    "doc_id": "ORAN_WG3_E2",
+    "spec_number": "O-RAN.WG3.E2AP",
+    "release": "v03.00",
+    "title": "O-RAN Near-Real-Time RIC E2 Application Protocol",
+    "sections": [
+      {
+        "section_id": "8.3.1",
+        "title": "E2 Node Disconnect & RIC Service Update",
+        "content": "The E2 interface connects Near-RT RIC to E2 Nodes (O-CU-CP, O-CU-UP, O-DU) over SCTP. When SCTP association drops due to fronthaul jitter or network partition (latency > 10 ms SLA), E2 Node Disconnect alarm is asserted with Critical severity. Active xApps (such as Traffic Steering xApp or Anomaly Detection xApp) enter fallback mode and trigger E2 Setup Procedure after SCTP recovery."
+      },
+      {
+        "section_id": "9.2.4",
+        "title": "CU-DU F1 Interface Latency & xApp Conflict Resolution",
+        "content": "O-RAN Conflict Mitigation function in the Near-RT RIC resolves direct and indirect parameter conflicts between concurrent xApps (e.g., MRO xApp vs MLB xApp). F1-C and F1-U split interfaces between O-CU and O-DU require midhaul latency below 10 ms to maintain RRC and PDCP synchronization."
+      }
+    ]
+  }
+]
